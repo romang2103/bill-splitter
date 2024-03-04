@@ -25,6 +25,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ad65e6bc-cdd7-4307-91c5-0ac793749db1"
+      }
+    },
+    "owner": "romang2103"
   }
 }
