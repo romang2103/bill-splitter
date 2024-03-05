@@ -6,6 +6,9 @@ import os
 
 app = Flask(__name__)
 
+# Configure the path to the Tesseract binary on Heroku
+pytesseract.pytesseract.tesseract_cmd = "/app/.apt/usr/bin/tesseract"
+
 
 @app.route("/api/ocr", methods=["POST"])
 def upload_file():
@@ -18,7 +21,11 @@ def upload_file():
         filename = secure_filename(file.filename)
         filepath = os.path.join("/tmp", filename)
         file.save(filepath)
-        text = pytesseract.image_to_string(Image.open(filepath))
+        try:
+            text = pytesseract.image_to_string(Image.open(filepath))
+        except Exception as e:
+            os.remove(filepath)  # Clean up after processing
+            return jsonify({"error": f"OCR processing failed: {str(e)}"}), 500
         os.remove(filepath)  # Clean up after processing
         return jsonify({"text": text})
 
