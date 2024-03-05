@@ -1,27 +1,27 @@
 from flask import Flask, request, jsonify
-from PIL import Image
+from werkzeug.utils import secure_filename
 import pytesseract
+from PIL import Image
+import os
 
 app = Flask(__name__)
 
 
 @app.route("/api/ocr", methods=["POST"])
-def ocr():
-    try:
-        # Assuming the image is sent as form data with the key 'image'
-        print(request.files)
-        image_file = request.files["image"]
-        print("image file:", image_file)
-        image = Image.open(image_file)
-
-        # Perform OCR using pytesseractr
-        text_result = pytesseract.image_to_string(image)
-        print("text: ", text_result)
-
-        return jsonify({"text_result": text_result})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+def upload_file():
+    if "image" not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    file = request.files["image"]
+    if file.filename == "":
+        return jsonify({"error": "No selected file"}), 400
+    if file:
+        filename = secure_filename(file.filename)
+        filepath = os.path.join("/tmp", filename)
+        file.save(filepath)
+        text = pytesseract.image_to_string(Image.open(filepath))
+        os.remove(filepath)  # Clean up after processing
+        return jsonify({"text": text})
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    app.run(debug=True)
