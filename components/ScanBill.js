@@ -16,6 +16,28 @@ export default function ScanBill() {
   const cameraRef = useRef(null);
 
   const [photoUri, setPhotoUri] = useState(null);
+  const [textResult, setTextResult] = useState("");
+
+  const performOCR = async () => {
+    const formData = new FormData();
+    formData.append("image", {
+      uri: photoUri,
+      type: "image/jpeg", // or the correct image type
+      name: "image.jpg",
+    });
+
+    try {
+      const response = await fetch("http://192.168.0.131:5000/api/ocr", {
+        method: "POST",
+        body: formData,
+      });
+      console.log("awaiting response");
+      const result = await response.json();
+      console.log(result);
+    } catch (error) {
+      console.error("Error performing OCR:", error);
+    }
+  };
 
   if (!permission) {
     // Camera permissions are still loading
@@ -44,6 +66,7 @@ export default function ScanBill() {
     if (cameraRef.current) {
       const { uri } = await cameraRef.current.takePictureAsync();
       setPhotoUri(uri);
+      console.log(uri);
     }
   };
 
@@ -66,10 +89,7 @@ export default function ScanBill() {
               <TouchableOpacity style={styles.button} onPress={retakePhoto}>
                 <Text style={styles.text}>Retake Photo</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={sendPhotoForAnalysis}
-              >
+              <TouchableOpacity style={styles.button} onPress={performOCR}>
                 <Text style={styles.text}>Continue</Text>
               </TouchableOpacity>
             </View>
