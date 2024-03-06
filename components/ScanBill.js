@@ -1,4 +1,4 @@
-import { Camera, CameraType } from "expo-camera";
+import { Camera, CameraType, AutoFocus } from "expo-camera";
 import { useState, useRef } from "react";
 import {
   Button,
@@ -19,6 +19,8 @@ export default function ScanBill() {
   const [textResult, setTextResult] = useState("");
 
   const performOCR = async () => {
+    if (!photoUri) return;
+
     const formData = new FormData();
     formData.append("image", {
       uri: photoUri,
@@ -36,7 +38,12 @@ export default function ScanBill() {
       );
       console.log("awaiting response");
       const result = await response.json();
-      console.log(result.text);
+      if (result.text) {
+        setTextResult(result.text); // Update state with OCR result text
+        console.log("OCR Text:", result.text);
+      } else {
+        console.error("OCR text extraction failed:", result);
+      }
     } catch (error) {
       console.error("Error performing OCR:", error);
     }
@@ -67,20 +74,19 @@ export default function ScanBill() {
 
   const takePhoto = async () => {
     if (cameraRef.current) {
-      const { uri } = await cameraRef.current.takePictureAsync();
+      const { uri } = await cameraRef.current.takePictureAsync({
+        quality: 0.9,
+        AutoFocus: "on",
+      });
       setPhotoUri(uri);
+      setTextResult("");
       console.log(uri);
     }
   };
 
   const retakePhoto = () => {
     setPhotoUri(null);
-  };
-
-  const sendPhotoForAnalysis = () => {
-    // Implement logic to send the photo for analysis
-    console.log("Sending photo for analysis:", photoUri);
-    // Add your logic for sending the photo to the ML model here
+    setTextResult("");
   };
 
   return (
@@ -121,6 +127,7 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
+    autoFocus: AutoFocus.on,
   },
   buttonContainer: {
     flex: 1,
