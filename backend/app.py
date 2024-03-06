@@ -38,7 +38,7 @@ def perform_ocr():
         return jsonify({"error": "File path does not exist"}), 400
 
     try:
-        text = pytesseract.run_and_get_output(
+        text = pytesseract.image_to_string(
             Image.open(file_path),
             config="--psm 10 --oem 1 -c tessedit_char_whitelist=ABCDEFG0123456789",
         )
