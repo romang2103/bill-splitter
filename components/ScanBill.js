@@ -27,13 +27,16 @@ export default function ScanBill() {
     });
 
     try {
-      const response = await fetch("http://192.168.0.131:5000/api/ocr", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://stormy-scrubland-81714-07bd8ed899b9.herokuapp.com/api/ocr",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
       console.log("awaiting response");
       const result = await response.json();
-      console.log(result);
+      console.log(result.text);
     } catch (error) {
       console.error("Error performing OCR:", error);
     }
