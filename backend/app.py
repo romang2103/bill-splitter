@@ -27,7 +27,6 @@ def upload_file():
             os.remove(filepath)  # Clean up after processing
             return jsonify({"error": f"OCR processing failed: {str(e)}"}), 500
         os.remove(filepath)  # Clean up after processing
-        print(text)
         return jsonify({"text": text})
 
 
