@@ -22,8 +22,7 @@ def upload_file():
         filepath = os.path.join("/tmp", filename)
         file.save(filepath)
         try:
-            # text = pytesseract.image_to_string(Image.open(filepath), config="--psm 10")
-            text = pytesseract.run_and_get_output(Image.open(filepath))
+            text = pytesseract.image_to_string(Image.open(filepath), config="--psm 10")
         except Exception as e:
             os.remove(filepath)  # Clean up after processing
             return jsonify({"error": f"OCR processing failed: {str(e)}"}), 500
