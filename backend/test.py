@@ -9,11 +9,14 @@ def main():
     LOCATION = "eu"  # Format is 'us' or 'eu'
     PROCESSOR_ID = "3ea9f8f4c9efbd50"  # Create processor in Cloud Console
 
-    credential_path = "C:\\Users\\Roman\\AppData\\Roaming\\gcloud\\application_default_credentials.json"
+    # credential_path = "C:\\Users\\Roman\\AppData\\Roaming\\gcloud\\application_default_credentials.json"
+    credential_path = "C:\\Users\\roman\\AppData\\Roaming\\gcloud\\application_default_credentials.json"
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credential_path
 
     # The local file in your current working directory
-    FILE_PATH = "E:\\GitHub\\bill-splitter\\assets\\bill2.jpg"
+    # FILE_PATH = "E:\\GitHub\\bill-splitter\\assets\\bill2.jpg"
+    FILE_PATH = "C:\\Users\\roman\\Documents\\GitHub\\bill-splitter\\assets\\bill2.jpg"
+
     # Refer to https://cloud.google.com/document-ai/docs/file-types
     # for supported file types
     MIME_TYPE = "image/jpeg"
@@ -22,7 +25,6 @@ def main():
     docai_client = documentai.DocumentProcessorServiceClient(
         client_options=ClientOptions(
             api_endpoint=f"{LOCATION}-documentai.googleapis.com"
-            # api_endpoint="https://eu-documentai.googleapis.com/v1/projects/135797969135/locations/eu/processors/3ea9f8f4c9efbd50:process"
         )
     )
 
@@ -46,7 +48,18 @@ def main():
 
     document_object = result.document
     print("Document processing complete.")
-    print(f"Text: {document_object.pages}")
+
+    # Write form fields to a separate file
+    with open("form_fields.txt", "w") as output_file:
+        for page_num, page in enumerate(document_object.pages):
+            output_file.write(f"Page {page_num + 1} Form Fields:\n")
+            for form_field_num, form_field in enumerate(page.form_fields):
+                output_file.write(
+                    f"Form Field {form_field_num + 1}: {form_field.field_value.text_anchor.content}\n"
+                )
+                output_file.write("\n")
+
+                # Test pages.tables -- check for field_values
 
 
 if __name__ == "__main__":
