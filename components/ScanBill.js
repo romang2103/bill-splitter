@@ -1,5 +1,6 @@
 import { Camera, CameraType, AutoFocus } from "expo-camera";
 import { useState, useRef } from "react";
+import Slider from "@react-native-community/slider";
 import {
   Button,
   StyleSheet,
@@ -8,15 +9,23 @@ import {
   View,
   Image,
   ImageBackground,
+  Dimensions,
 } from "react-native";
 
 export default function ScanBill() {
   const [type, setType] = useState(CameraType.back);
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const cameraRef = useRef(null);
+  const [focusDepth, setFocusDepth] = useState(0); // Default focus depth
 
   const [photoUri, setPhotoUri] = useState(null);
   const [textResult, setTextResult] = useState("");
+
+  // Focus camera on click
+  const handleFocus = async (e) => {
+    const newFocusDepth = focusDepth === 0 ? 1 : 0;
+    setFocusDepth(newFocusDepth);
+  };
 
   const performOCR = async () => {
     if (!photoUri) return;
@@ -105,16 +114,36 @@ export default function ScanBill() {
           </ImageBackground>
         </View>
       ) : (
-        <Camera style={styles.camera} type={type} ref={cameraRef}>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={toggleCameraType}>
-              <Text style={styles.text}>Flip Camera</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={takePhoto}>
-              <Text style={styles.text}>Take Photo</Text>
-            </TouchableOpacity>
-          </View>
-        </Camera>
+        <View style={styles.container}>
+          <Camera
+            style={styles.camera}
+            type={type}
+            ref={cameraRef}
+            autoFocus={AutoFocus.on}
+            focusDepth={focusDepth} // Control the focus depth with the slider
+          >
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={toggleCameraType}
+              >
+                <Text style={styles.text}>Flip Camera</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={takePhoto}>
+                <Text style={styles.text}>Take Photo</Text>
+              </TouchableOpacity>
+            </View>
+          </Camera>
+          <Slider // Add the Slider component
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={1}
+            minimumTrackTintColor="#FFFFFF"
+            maximumTrackTintColor="#000000"
+            value={focusDepth}
+            onValueChange={setFocusDepth}
+          />
+        </View>
       )}
     </View>
   );
@@ -151,5 +180,12 @@ const styles = StyleSheet.create({
   photo: {
     flex: 1,
     resizeMode: "cover",
+  },
+  slider: {
+    width: 300,
+    height: 40,
+    marginTop: 10,
+    alignSelf: "center",
+    backgroundColor: "transparent",
   },
 });
