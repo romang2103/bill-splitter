@@ -1,0 +1,24 @@
+Properties: [{'Type': 'line_item/quantity', 'Content': '1'}, {'Type': 'line_item/amount', 'Content': '2.50'}]
+
+Properties: [{'Type': 'line_item/quantity', 'Content': '1'}, {'Type': 'line_item/description', 'Content': 'CHIANTI CLASSICO'}, {'Type': 'line_item/amount', 'Content': '29.50'}]
+
+Properties: [{'Type': 'line_item/quantity', 'Content': '1'}, {'Type': 'line_item/amount', 'Content': '4.95'}]
+
+Properties: [{'Type': 'line_item/quantity', 'Content': '4'}, {'Type': 'line_item/description', 'Content': 'DBL ESPRESSO'}, {'Type': 'line_item/amount', 'Content': '9.00'}]
+
+Properties: [{'Type': 'line_item/quantity', 'Content': '2'}, {'Type': 'line_item/description', 'Content': 'PENNE ARABBIATA'}]
+
+Properties: [{'Type': 'line_item/amount', 'Content': '15.90'}]
+
+Properties: [{'Type': 'line_item/quantity', 'Content': '1'}, {'Type': 'line_item/description', 'Content': 'KP IN GARLIC'}, {'Type': 'line_item/amount', 'Content': '8.95'}]
+
+Properties: [{'Type': 'line_item/quantity', 'Content': '1'}, {'Type': 'line_item/description', 'Content': 'FILET PEPE'}, {'Type': 'line_item/amount', 'Content': '23.95'}]
+
+Properties: [{'Type': 'line_item/quantity', 'Content': '1'}, {'Type': 'line_item/description', 'Content': 'LAMB MENTA'}, {'Type': 'line_item/amount', 'Content': '18.50'}]
+
+Properties: [{'Type': 'line_item/quantity', 'Content': '2'}, {'Type': 'line_item/amount', 'Content': '7.90'}]
+
+Properties: [{'Type': 'line_item/quantity', 'Content': '2'}, {'Type': 'line_item/product_code', 'Content': '250L'}, {'Type': 'line_item/description', 'Content': 'GLS MERLOT'}, {'Type': 'line_item/amount', 'Content': '15.00'}]
+
+Tax: 13.62
+Total: 149.77
