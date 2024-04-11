@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from flask import Flask, request, jsonify
 from google.cloud import documentai
 from google.oauth2 import service_account

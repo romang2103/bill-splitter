@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from flask import Flask, request, jsonify
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai
