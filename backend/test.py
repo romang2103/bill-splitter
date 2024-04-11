@@ -15,9 +15,9 @@ def main():
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credential_path
 
     # The local file in your current working directory
-    FILE_PATH = "E:\\GitHub\\bill-splitter\\assets\\bill2.jpg"
-
     # FILE_PATH = "E:\\GitHub\\bill-splitter\\assets\\bill2.jpg"
+
+    FILE_PATH = "E:\\GitHub\\bill-splitter\\assets\\bill4.jpg"
     # FILE_PATH = "C:\\Users\\roman\\Documents\\GitHub\\bill-splitter\\assets\\bill2.jpg"
 
     # Refer to https://cloud.google.com/document-ai/docs/file-types
@@ -86,12 +86,6 @@ def main():
             total_amount = entity.mention_text
         elif entity.type_ == "total_tax_amount":
             total_tax_amount = entity.mention_text
-
-    # with open("processed_response_tesco.txt", "w") as output_file:
-    #     for form_field_num, form_field in enumerate(form_fields):
-    #         output_file.write(f"Form Field {form_field_num + 1}\n")
-    #         output_file.write(f"Name: {form_field['Name']}\n")
-    #         output_file.write(f"Value: {form_field['Value']}\n\n")
 
     with open("response_invoice.txt", "w") as output_file:
         for entity_num, entity in enumerate(entities):

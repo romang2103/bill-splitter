@@ -31,15 +31,16 @@ export default function ScanBill() {
     if (!photoUri) return;
 
     const formData = new FormData();
-    formData.append("image", {
+    formData.append("document", {
+      // This key matches the Flask app's expected key
       uri: photoUri,
-      type: "image/jpeg", // or the correct image type
-      name: "image.jpg",
+      type: "image/jpeg", // Ensure this matches the expected MIME type of your backend
+      name: "document.jpg",
     });
 
     try {
       const response = await fetch(
-        "https://stormy-scrubland-81714-07bd8ed899b9.herokuapp.com/api/ocr",
+        "https://protected-dawn-92499.herokuapp.com/process-document", // Use your actual backend URL here
         {
           method: "POST",
           body: formData,
@@ -47,9 +48,11 @@ export default function ScanBill() {
       );
       console.log("awaiting response");
       const result = await response.json();
-      if (result.text) {
-        setTextResult(result.text); // Update state with OCR result text
-        console.log("OCR Text:", result.text);
+      if (result.entities) {
+        // Assuming your backend returns an 'entities' array
+        // Process and display the results as needed, perhaps updating state to display the results
+        setTextResult(JSON.stringify(result.entities)); // Example: Update state to display the OCR results
+        console.log("OCR Entities:", result.entities);
       } else {
         console.error("OCR text extraction failed:", result);
       }
