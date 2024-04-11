@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 from flask import Flask, request, jsonify
-from google.api_core.client_options import ClientOptions
 from google.cloud import documentai
+from google.oauth2 import service_account
+from google.api_core.client_options import ClientOptions
 import os
+import json
 
 app = Flask(__name__)
 
 
 @app.route("/process-document", methods=["POST"])
 def process_document():
-    # Check if the 'document' key is in the request files
     if "document" not in request.files:
         return jsonify({"error": "No file provided with key 'document'"}), 400
 
-    # Get the file object
     file = request.files["document"]
 
     PROJECT_ID = "evensteven"
@@ -21,36 +21,35 @@ def process_document():
     PROCESSOR_ID = "9f4ba5473e27e98f"
     MIME_TYPE = "image/jpeg"
 
-    # Assuming credentials are already set in the environment or via a config
-    # This script expects GOOGLE_APPLICATION_CREDENTIALS environment variable to be set
-
-    # Instantiates a client
-    docai_client = documentai.DocumentProcessorServiceClient(
-        client_options=ClientOptions(
-            api_endpoint=f"{LOCATION}-documentai.googleapis.com"
-        )
+    # Directly use credentials from environment variables
+    credentials_json = json.loads(
+        os.environ.get("GOOGLE_CREDENTIALS")
+    )  # Assumes JSON in string format
+    credentials = service_account.Credentials.from_service_account_info(
+        credentials_json
     )
 
-    # The full resource name of the processor
+    docai_client = documentai.DocumentProcessorServiceClient(
+        credentials=credentials,
+        client_options=ClientOptions(
+            api_endpoint=f"{LOCATION}-documentai.googleapis.com"
+        ),
+    )
+
     RESOURCE_NAME = docai_client.processor_path(PROJECT_ID, LOCATION, PROCESSOR_ID)
 
-    # Read the file content
     image_content = file.read()
 
-    # Load Binary Data into Document AI RawDocument Object
     raw_document = documentai.RawDocument(content=image_content, mime_type=MIME_TYPE)
 
-    # Configure the process request
     doc_request = documentai.ProcessRequest(
         name=RESOURCE_NAME, raw_document=raw_document
     )
 
-    # Process the document
     result = docai_client.process_document(request=doc_request)
     document_object = result.document
     print("Document processing complete.")
 
-    # Extract entities
     entities = [
         {
             "Type": entity.type_,
@@ -74,7 +73,6 @@ def process_document():
         elif entity.type_ == "total_tax_amount":
             total_tax_amount = entity.mention_text
 
-    # Return the extracted information as JSON
     return jsonify(
         {
             "entities": entities,
@@ -90,4 +88,6 @@ def health_check():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Use Heroku's PORT environment variable if it's set, otherwise default to 5000 for local development.
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)  # Set debug=False for production
