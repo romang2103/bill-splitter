@@ -10,9 +10,9 @@ def main():
     LOCATION = "eu"  # Format is 'us' or 'eu'
     PROCESSOR_ID = "9f4ba5473e27e98f"  # Create processor in Cloud Console
 
-    credential_path = "C:\\Users\\Roman\\AppData\\Roaming\\gcloud\\application_default_credentials.json"
-    # credential_path = "C:\\Users\\roman\\AppData\\Roaming\\gcloud\\application_default_credentials.json"
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credential_path
+    # credential_path = "C:\Users\Roman\AppData\Roaming\gcloud\application_default_credentials.json"
+    # # credential_path = "C:\\Users\\roman\\AppData\\Roaming\\gcloud\\application_default_credentials.json"
+    # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credential_path
 
     # The local file in your current working directory
     # FILE_PATH = "E:\\GitHub\\bill-splitter\\assets\\bill2.jpg"
