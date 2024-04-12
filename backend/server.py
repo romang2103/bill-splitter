@@ -33,7 +33,7 @@ def get_documentai_client():
         client = documentai.DocumentProcessorServiceClient(credentials=creds)
         return client
     except Exception as e:
-        logger.error(f"Failed to get Document AI client: {e}")
+        logger.error(f"Failed to get Document AI client: {str(e)}")
         raise
 
 
@@ -56,7 +56,7 @@ def process_document():
             raise ValueError("One or more environment variables are missing.")
 
         docai_client = get_documentai_client()
-        logger.info("Doc AI client: " + docai_client)
+        logger.info("Document AI client has been successfully created.")
 
         RESOURCE_NAME = docai_client.processor_path(PROJECT_ID, LOCATION, PROCESSOR_ID)
 
