@@ -48,8 +48,7 @@ def process_document():
 
     try:
         PROJECT_ID = os.environ.get("PROJECT_ID")
-        # LOCATION = os.environ.get("LOCATION")
-        LOCATION = "us"
+        LOCATION = os.environ.get("LOCATION")
         PROCESSOR_ID = os.environ.get("PROCESSOR_ID")
         MIME_TYPE = os.environ.get("MIME_TYPE")  # Adjust based on the actual file type
 
