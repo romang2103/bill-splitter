@@ -30,7 +30,10 @@ def get_documentai_client():
         # Check creds
         logger.info("Credentials have been loaded successfully")
 
-        client = documentai.DocumentProcessorServiceClient(credentials=creds)
+        client = documentai.DocumentProcessorServiceClient(
+            credentials=creds,
+            client_options=ClientOptions(api_endpoint=f"eu-documentai.googleapis.com"),
+        )
         return client
     except Exception as e:
         logger.error(f"Failed to get Document AI client: {str(e)}")
