@@ -17,23 +17,23 @@ logger = logging.getLogger()
 
 
 def get_documentai_client():
-    # Decode the base64 credentials
     try:
         creds_json = base64.b64decode(os.environ["GOOGLE_CREDENTIALS_BASE64"]).decode(
             "utf-8"
         )
-        logger.info("creds_json: " + creds_json)
+        # Check cred_json
+        logger.info("Credentials JSON has been decoded successfully")
 
         creds = service_account.Credentials.from_service_account_info(
             json.loads(creds_json)
         )
-        logger.info("creds: " + creds)
+        # Check creds
+        logger.info("Credentials have been loaded successfully")
 
-        # Create a Document AI client with the decoded credentials
         client = documentai.DocumentProcessorServiceClient(credentials=creds)
         return client
     except Exception as e:
-        logger.error(f"Failed to get Document AI client: {str(e)}")
+        logger.error(f"Failed to get Document AI client: {e}")
         raise
 
 
