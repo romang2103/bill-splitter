@@ -62,11 +62,11 @@ def process_document():
         raw_document = documentai.RawDocument(
             content=image_content, mime_type=MIME_TYPE
         )
-        request = documentai.ProcessRequest(
+        docai_request = documentai.ProcessRequest(
             name=RESOURCE_NAME, raw_document=raw_document
         )
 
-        result = docai_client.process_document(request=request)
+        result = docai_client.process_document(request=docai_request)
         document_object = result.document
 
         # Extracted data transformation (simplified for example purposes)
