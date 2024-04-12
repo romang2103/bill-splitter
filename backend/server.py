@@ -22,9 +22,12 @@ def get_documentai_client():
         creds_json = base64.b64decode(os.environ["GOOGLE_CREDENTIALS_BASE64"]).decode(
             "utf-8"
         )
+        logger.info("creds_json: " + creds_json)
+
         creds = service_account.Credentials.from_service_account_info(
             json.loads(creds_json)
         )
+        logger.info("creds: " + creds)
 
         # Create a Document AI client with the decoded credentials
         client = documentai.DocumentProcessorServiceClient(credentials=creds)
@@ -53,6 +56,7 @@ def process_document():
             raise ValueError("One or more environment variables are missing.")
 
         docai_client = get_documentai_client()
+        logger.info("Doc AI client: " + docai_client)
 
         RESOURCE_NAME = docai_client.processor_path(PROJECT_ID, LOCATION, PROCESSOR_ID)
 
