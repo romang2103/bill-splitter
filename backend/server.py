@@ -3,29 +3,35 @@ import json
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai
 from google.oauth2 import service_account
-
-# from dotenv import load_dotenv
 import os
 import io
 import base64
+import logging
 
-# load_dotenv()
-
+# Initialize Flask app
 app = Flask(__name__)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
 
 
 def get_documentai_client():
     # Decode the base64 credentials
-    creds_json = base64.b64decode(os.environ["GOOGLE_CREDENTIALS_BASE64"]).decode(
-        "utf-8"
-    )
-    creds = service_account.Credentials.from_service_account_info(
-        json.loads(creds_json)
-    )
+    try:
+        creds_json = base64.b64decode(os.environ["GOOGLE_CREDENTIALS_BASE64"]).decode(
+            "utf-8"
+        )
+        creds = service_account.Credentials.from_service_account_info(
+            json.loads(creds_json)
+        )
 
-    # Create a Document AI client with the decoded credentials
-    client = documentai.DocumentProcessorServiceClient(credentials=creds)
-    return client
+        # Create a Document AI client with the decoded credentials
+        client = documentai.DocumentProcessorServiceClient(credentials=creds)
+        return client
+    except Exception as e:
+        logger.error(f"Failed to get Document AI client: {str(e)}")
+        raise
 
 
 @app.route("/process-document", methods=["POST"])
@@ -38,12 +44,13 @@ def process_document():
         return jsonify({"error": "No selected file"}), 400
 
     try:
-        PROJECT_ID = os.environ["PROJECT_ID"]
-        LOCATION = os.environ["LOCATION"]
-        PROCESSOR_ID = os.environ["PROCESSOR_ID"]
+        PROJECT_ID = os.environ.get("PROJECT_ID")
+        LOCATION = os.environ.get("LOCATION")
+        PROCESSOR_ID = os.environ.get("PROCESSOR_ID")
+        MIME_TYPE = os.environ.get("MIME_TYPE")  # Adjust based on the actual file type
 
-        # Adjust based on the actual file type
-        MIME_TYPE = os.environ["MIME_TYPE"]
+        if not all([PROJECT_ID, LOCATION, PROCESSOR_ID, MIME_TYPE]):
+            raise ValueError("One or more environment variables are missing.")
 
         docai_client = get_documentai_client()
 
@@ -77,6 +84,7 @@ def process_document():
         return jsonify({"entities": entities})
 
     except Exception as e:
+        logger.error(f"Error processing document: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 
