@@ -1,1 +1,1 @@
-web: gunicorn backend.heroku_test:app
+web: gunicorn backend.app:app
