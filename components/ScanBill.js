@@ -40,7 +40,7 @@ export default function ScanBill() {
 
     try {
       const response = await fetch(
-        "https://protected-dawn-92499.herokuapp.com/process-document", // Use your actual backend URL here
+        "https://protected-dawn-92499-c2ffee5a716f.herokuapp.com/process-document",
         {
           method: "POST",
           body: formData,
