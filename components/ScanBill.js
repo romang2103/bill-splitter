@@ -9,6 +9,9 @@ import {
   ImageBackground,
 } from "react-native";
 import Slider from "@react-native-community/slider";
+import OpenAI from "openai";
+
+require("dotenv").config();
 
 export default function ScanBill() {
   const [facing, setFacing] = useState("back");
@@ -18,7 +21,9 @@ export default function ScanBill() {
   const [photoUri, setPhotoUri] = useState(null);
   const [textResult, setTextResult] = useState("");
 
-  const performOCR = async () => {
+  const openai = new OpenAI();
+
+  const performOCRAndAnalysis = async () => {
     if (!photoUri) return;
 
     const formData = new FormData();
@@ -29,21 +34,53 @@ export default function ScanBill() {
     });
 
     try {
-      const response = await fetch(
-        "https://protected-dawn-92499-c2ffee5a716f.herokuapp.com/process-document",
+      // Convert the image to a blob and create a URL
+      const response = await fetch(photoUri);
+      const blob = await response.blob();
+      const imageUrl = URL.createObjectURL(blob);
+
+      // Send the image URL to GPT-4o for analysis
+      const gpt4oResponse = await fetch(
+        "https://api.openai.com/v1/chat/completions",
         {
           method: "POST",
-          body: formData,
+          headers: {
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "gpt-4o",
+            messages: [
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "json_object",
+                    text: "Analyze the image and return a json object containing items, quantities, price, total price, and anything relating to service charge or tax",
+                  },
+                  {
+                    type: "image_url",
+                    image_url: {
+                      url: imageUrl,
+                      detail: "high",
+                    },
+                  },
+                ],
+              },
+            ],
+            max_tokens: 300,
+          }),
         }
       );
-      const result = await response.json();
-      if (result.entities) {
-        setTextResult(JSON.stringify(result.entities));
+
+      const result = await gpt4oResponse.json();
+      if (result.choices && result.choices[0].message.content) {
+        setTextResult(JSON.stringify(result.choices[0].message.content));
       } else {
-        console.error("OCR text extraction failed:", result);
+        console.error("Processing failed:", result);
       }
     } catch (error) {
-      console.error("Error performing OCR:", error);
+      console.error("Error processing document:", error);
     }
   };
 
