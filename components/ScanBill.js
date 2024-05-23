@@ -11,8 +11,6 @@ import {
 import Slider from "@react-native-community/slider";
 import OpenAI from "openai";
 
-require("dotenv").config();
-
 export default function ScanBill() {
   const [facing, setFacing] = useState("back");
   const [permission, requestPermission] = useCameraPermissions();
@@ -21,64 +19,73 @@ export default function ScanBill() {
   const [photoUri, setPhotoUri] = useState(null);
   const [textResult, setTextResult] = useState("");
 
-  const openai = new OpenAI();
+  const openai = new OpenAI({ apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY });
 
-  const performOCRAndAnalysis = async () => {
+  const performOCR = async () => {
     if (!photoUri) return;
-
-    const formData = new FormData();
-    formData.append("document", {
-      uri: photoUri,
-      type: "image/jpeg",
-      name: "document.jpg",
-    });
 
     try {
       // Convert the image to a blob and create a URL
       const response = await fetch(photoUri);
       const blob = await response.blob();
-      const imageUrl = URL.createObjectURL(blob);
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = async () => {
+        const base64data = reader.result.split(",")[1]; // Get the base64 part of the DataURL
 
-      // Send the image URL to GPT-4o for analysis
-      const gpt4oResponse = await fetch(
-        "https://api.openai.com/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "gpt-4o",
-            messages: [
-              {
-                role: "user",
-                content: [
-                  {
-                    type: "json_object",
-                    text: "Analyze the image and return a json object containing items, quantities, price, total price, and anything relating to service charge or tax",
-                  },
-                  {
-                    type: "image_url",
-                    image_url: {
-                      url: imageUrl,
-                      detail: "high",
+        // Send the image URL to GPT-4o for analysis
+        const gpt4oResponse = await fetch(
+          "https://api.openai.com/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${process.env.EXPO_PUBLIC_OPENAI_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "gpt-4o",
+              response_format: { type: "json_object" },
+              messages: [
+                {
+                  role: "system",
+                  content:
+                    "You are a helpful assistant designed to output JSON.",
+                },
+                {
+                  role: "user",
+                  content: [
+                    {
+                      type: "text",
+                      text: "Extract item, quantity, price, total price, and any additional charges like tax or service charge from this receipt. Please return the result as a JSON object.",
                     },
-                  },
-                ],
-              },
-            ],
-            max_tokens: 300,
-          }),
-        }
-      );
+                    {
+                      type: "image_url",
+                      image_url: {
+                        url: `data:image/jpeg;base64,${base64data}`,
+                      },
+                    },
+                  ],
+                },
+              ],
+              max_tokens: 2000,
+            }),
+          }
+        );
 
-      const result = await gpt4oResponse.json();
-      if (result.choices && result.choices[0].message.content) {
-        setTextResult(JSON.stringify(result.choices[0].message.content));
-      } else {
-        console.error("Processing failed:", result);
-      }
+        const result = await gpt4oResponse.json();
+        console.log(result.choices[0].message.content);
+        if (result.choices && result.choices[0].message.content) {
+          try {
+            const jsonResponse = JSON.parse(result.choices[0].message.content);
+            setTextResult(JSON.stringify(jsonResponse, null, 2));
+          } catch (error) {
+            console.error("Failed to parse JSON:", error);
+            setTextResult(result.choices[0].message.content);
+          }
+        } else {
+          console.error("Processing failed:", result);
+        }
+      };
     } catch (error) {
       console.error("Error processing document:", error);
     }
@@ -166,6 +173,11 @@ export default function ScanBill() {
           />
         </View>
       )}
+      {textResult ? (
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultText}>{textResult}</Text>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -209,5 +221,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignSelf: "center",
     backgroundColor: "transparent",
+  },
+  resultContainer: {
+    padding: 10,
+  },
+  resultText: {
+    fontSize: 16,
+    color: "black",
   },
 });
